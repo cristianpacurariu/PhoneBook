@@ -169,32 +169,18 @@ namespace WinForms
             }
             else
             {
-                //XmlSerializer xmlSerializer = new XmlSerializer(typeof(DataGridView));
-                //using (Stream fileStream = new FileStream("test.txt", FileMode.Create, FileAccess.Write, FileShare.None)
-                //{
-                //    xmlSerializer.Serialize(fileStream, dataGridView)
-                //};
-
-                //string fileName = "D:/Temp/Subscribers_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xml";
-                //Serialize(dataGridView, fileName);
-
-                SaveFileDialog savefile = new SaveFileDialog();
-                savefile.FileName = $"Subscribers_{DateTime.Now.ToString("yyyyMMddHHmmss")}.xml";
-                savefile.Filter = "Text files (*.xml)|*.xml|All files (*.*)|*.*";
+                SaveFileDialog savefile = new SaveFileDialog
+                {
+                    FileName = $"Subscribers_{DateTime.Now.ToString("yyyyMMddHHmmss")}.xml",
+                    Filter = "Text files (*.xml)|*.xml|All files (*.*)|*.*"
+                };
 
                 if (savefile.ShowDialog() == DialogResult.OK)
                 {
-                    //using (StreamWriter sw = new StreamWriter(savefile.FileName))
-                    //    sw.WriteLine("Hello World!");
-
                     string fileName = Path.Combine("D:/Temp", savefile.FileName);
                     Serialize(dataGridView, fileName);
+                    MessageBox.Show($"Data saved succesfully at {fileName}");
                 }
-
-                //saveDialog.ShowDialog();
-                //saveDialog.FileName = fileName;
-                //saveDialog.DefaultExt = ".xml";
-                //saveDialog.Title = "Test";
             }
         }
 
