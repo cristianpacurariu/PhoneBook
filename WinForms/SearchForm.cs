@@ -3,12 +3,7 @@ using PhoneBook.Infrastructure.Specific;
 using PhoneBook.Repository;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -28,7 +23,7 @@ namespace WinForms
                     new DataGridViewTextBoxColumn{ DataPropertyName = "Details", HeaderText = "Details"},
                 };
             dataGridView.Columns.AddRange(columns);
-
+        
             dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;

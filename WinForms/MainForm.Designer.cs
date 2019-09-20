@@ -46,8 +46,8 @@
             this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.fontDialog = new System.Windows.Forms.FontDialog();
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.addRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteRowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveDialog = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.contextMenu.SuspendLayout();
@@ -192,22 +192,14 @@
             // contextMenu
             // 
             this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addRowToolStripMenuItem,
             this.deleteRowToolStripMenuItem});
             this.contextMenu.Name = "contextMenuStrip1";
-            this.contextMenu.Size = new System.Drawing.Size(134, 48);
-            // 
-            // addRowToolStripMenuItem
-            // 
-            this.addRowToolStripMenuItem.Name = "addRowToolStripMenuItem";
-            this.addRowToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.addRowToolStripMenuItem.Text = "Add Row";
-            this.addRowToolStripMenuItem.Click += new System.EventHandler(this.AddRowToolStripMenuItem_Click);
+            this.contextMenu.Size = new System.Drawing.Size(181, 48);
             // 
             // deleteRowToolStripMenuItem
             // 
             this.deleteRowToolStripMenuItem.Name = "deleteRowToolStripMenuItem";
-            this.deleteRowToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.deleteRowToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.deleteRowToolStripMenuItem.Text = "Delete Row";
             this.deleteRowToolStripMenuItem.Click += new System.EventHandler(this.DeleteRowToolStripMenuItem_Click);
             // 
@@ -254,8 +246,8 @@
         private System.Windows.Forms.FontDialog fontDialog;
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.ContextMenuStrip contextMenu;
-        private System.Windows.Forms.ToolStripMenuItem addRowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteRowToolStripMenuItem;
+        private System.Windows.Forms.SaveFileDialog saveDialog;
     }
 }
 

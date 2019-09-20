@@ -4,12 +4,10 @@ using PhoneBook.Repository;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace WinForms
 {
@@ -44,16 +42,6 @@ namespace WinForms
             }
             dataGridView.DataSource = bindingList;
 
-            //for (int i = 0; i < bindingList.Count; i++)
-            //{
-            //    dataGridView.Rows.Add();
-            //    dataGridView["Id", i].Value = bindingList[i].Id;
-            //    dataGridView["First Name", i].Value = bindingList[i].FirstName;
-            //    dataGridView["Last Name", i].Value = bindingList[i].LastName;
-            //    dataGridView["Phone Number", i].Value = bindingList[i].PhoneNumber;
-            //    dataGridView["Details", i].Value = bindingList[i].Details;
-            //}
-
             //some styling
             dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
@@ -72,6 +60,54 @@ namespace WinForms
         }
         private void BtnSaveData_Click(object sender, EventArgs e)
         {
+            UpdateChangesInDatabase();
+
+            AddNewRowsInDatabase();
+
+            RefreshDataSource();
+        }
+
+        private void RefreshDataSource()
+        {
+            //Refresh datasource
+            List<SubscriberDto> allSubscribers = _subscriberRepo.All();
+            BindingList<SubscriberDto> bindingList = new BindingList<SubscriberDto>();
+            foreach (SubscriberDto subscriber in allSubscribers)
+            {
+                bindingList.Add(subscriber);
+            }
+            dataGridView.DataSource = bindingList;
+        }
+
+        private void AddNewRowsInDatabase()
+        {
+            //Add new subscribers to the database
+            foreach (DataGridViewRow row in dataGridView.Rows)
+            {
+                if (!row.IsNewRow && (int)row.Cells["Id"].Value == 0)
+                {
+                    SubscriberDto toAdd = new SubscriberDto
+                    {
+                        FirstName = dataGridView.Rows[row.Index].Cells["First Name"].Value?.ToString(),
+                        LastName = dataGridView.Rows[row.Index].Cells["Last Name"].Value?.ToString(),
+                        PhoneNumber = dataGridView.Rows[row.Index].Cells["Phone Number"].Value?.ToString(),
+                        Details = dataGridView.Rows[row.Index].Cells["Details"].Value?.ToString(),
+                    };
+
+                    try
+                    {
+                        _subscriberRepo.Add(toAdd);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An error occured while trying to add rows to the database.");
+                    }
+                }
+            }
+        }
+
+        private void UpdateChangesInDatabase()
+        {
             //Update changes in the database
             foreach (int id in toUpdateList)
             {
@@ -88,39 +124,21 @@ namespace WinForms
 
                 SubscriberDto subToUpdate = _subscriberRepo.Get(id);
                 subToUpdate.Id = (int)dataGridView.Rows[rowIndex].Cells["Id"].Value;
-                subToUpdate.FirstName = dataGridView.Rows[rowIndex].Cells["First Name"].Value.ToString();
-                subToUpdate.LastName = dataGridView.Rows[rowIndex].Cells["Last Name"].Value.ToString();
-                subToUpdate.PhoneNumber = dataGridView.Rows[rowIndex].Cells["Phone Number"].Value.ToString();
-                subToUpdate.Details = dataGridView.Rows[rowIndex].Cells["Details"].Value.ToString();
+                subToUpdate.FirstName = dataGridView.Rows[rowIndex].Cells["First Name"].Value?.ToString();
+                subToUpdate.LastName = dataGridView.Rows[rowIndex].Cells["Last Name"].Value?.ToString();
+                subToUpdate.PhoneNumber = dataGridView.Rows[rowIndex].Cells["Phone Number"].Value?.ToString();
+                subToUpdate.Details = dataGridView.Rows[rowIndex].Cells["Details"].Value?.ToString();
 
-                _subscriberRepo.Update(subToUpdate);
-            }
-
-            //Add new subscribers to the database
-            foreach (DataGridViewRow row in dataGridView.Rows)
-            {
-                if (!row.IsNewRow && (int)row.Cells["Id"].Value == 0)
+                try
                 {
-                    SubscriberDto toAdd = new SubscriberDto
-                    {
-                        FirstName = dataGridView.Rows[row.Index].Cells["First Name"].Value.ToString(),
-                        LastName = dataGridView.Rows[row.Index].Cells["Last Name"].Value.ToString(),
-                        PhoneNumber = dataGridView.Rows[row.Index].Cells["Phone Number"].Value.ToString(),
-                        Details = dataGridView.Rows[row.Index].Cells["Details"].Value.ToString(),
-                    };
-
-                    _subscriberRepo.Add(toAdd);
+                    _subscriberRepo.Update(subToUpdate);
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"An error occured while trying to update the database.");
+                }
+                toUpdateList = new List<int>();
             }
-
-            //Refresh datasource
-            List<SubscriberDto> allSubscribers = _subscriberRepo.All();
-            BindingList<SubscriberDto> bindingList = new BindingList<SubscriberDto>();
-            foreach (SubscriberDto subscriber in allSubscribers)
-            {
-                bindingList.Add(subscriber);
-            }
-            dataGridView.DataSource = bindingList;
         }
 
         private void BtnLoadData_Click(object sender, EventArgs e)
@@ -145,8 +163,62 @@ namespace WinForms
         }
         private void SaveToToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (dataGridView.Rows.Count == 0)
+            {
+                MessageBox.Show("There is no data to save");
+            }
+            else
+            {
+                //XmlSerializer xmlSerializer = new XmlSerializer(typeof(DataGridView));
+                //using (Stream fileStream = new FileStream("test.txt", FileMode.Create, FileAccess.Write, FileShare.None)
+                //{
+                //    xmlSerializer.Serialize(fileStream, dataGridView)
+                //};
 
+                //string fileName = "D:/Temp/Subscribers_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xml";
+                //Serialize(dataGridView, fileName);
+
+                SaveFileDialog savefile = new SaveFileDialog();
+                savefile.FileName = $"Subscribers_{DateTime.Now.ToString("yyyyMMddHHmmss")}.xml";
+                savefile.Filter = "Text files (*.xml)|*.xml|All files (*.*)|*.*";
+
+                if (savefile.ShowDialog() == DialogResult.OK)
+                {
+                    //using (StreamWriter sw = new StreamWriter(savefile.FileName))
+                    //    sw.WriteLine("Hello World!");
+
+                    string fileName = Path.Combine("D:/Temp", savefile.FileName);
+                    Serialize(dataGridView, fileName);
+                }
+
+                //saveDialog.ShowDialog();
+                //saveDialog.FileName = fileName;
+                //saveDialog.DefaultExt = ".xml";
+                //saveDialog.Title = "Test";
+            }
         }
+
+        private static bool Serialize(DataGridView dgv, string fileName)
+        {
+            if (dgv.DataSource == null)
+            {
+                return false;
+            }
+            try
+            {
+                XmlSerializer xmlSerializer = new XmlSerializer(dgv.DataSource.GetType());
+                Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+                xmlSerializer.Serialize(stream, dgv.DataSource);
+                stream.Close();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
+        }
+
         private void BackgroundColorsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             colorDialog.ShowDialog();
@@ -154,13 +226,17 @@ namespace WinForms
             btnLoadData.BackColor = colorDialog.Color;
             btnSaveData.BackColor = colorDialog.Color;
 
-            //dataGridView.BackgroundColor = colorDialog.Color;
+            //datagridview background
+            dataGridView.BackgroundColor = colorDialog.Color;
 
-            //dataGridView.ColumnHeadersDefaultCellStyle.BackColor = colorDialog.Color;
+            //columns headers
+            dataGridView.ColumnHeadersDefaultCellStyle.BackColor = colorDialog.Color;
 
+            //row headers
             dataGridView.RowHeadersDefaultCellStyle.BackColor = colorDialog.Color;
 
-            dataGridView.RowsDefaultCellStyle.BackColor = colorDialog.Color;
+            //data cells
+            dataGridView.RowsDefaultCellStyle.BackColor = ControlPaint.Light(ControlPaint.Light(colorDialog.Color));
         }
         private void ChangeFontsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -214,21 +290,6 @@ namespace WinForms
                 //show the context menu at the cell where the right click was performed
                 contextMenu.Show(Cursor.Position);
             }
-        }
-
-        //unneeded.
-        private void AddRowToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-            List<SubscriberDto> allSubscribers = _subscriberRepo.All();
-            BindingList<SubscriberDto> bindingList = new BindingList<SubscriberDto>();
-            foreach (SubscriberDto subscriber in allSubscribers)
-            {
-                bindingList.Add(subscriber);
-            }
-
-            bindingList.Add(new SubscriberDto { });
-            dataGridView.DataSource = bindingList;
         }
 
         private void DeleteRowToolStripMenuItem_Click(object sender, EventArgs e)

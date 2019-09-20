@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PhoneBook.Domain
 {
+    [Serializable]
     public class SubscriberDto
     {
         public int Id { get; set; }
