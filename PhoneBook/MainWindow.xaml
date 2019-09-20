@@ -1,0 +1,70 @@
+﻿<Window x:Class="PhoneBook.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PhoneBook"
+        mc:Ignorable="d"
+        Title="PhoneBook" Background="Gray" Height="450" Width="800" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="431*"/>
+            <ColumnDefinition Width="363*"/>
+        </Grid.ColumnDefinitions>
+        <Menu HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="792" Grid.ColumnSpan="2">
+            <MenuItem Header="File" FontSize="18" HorizontalAlignment="Center" AllowDrop="True">
+                <MenuItem Name="menuSaveToFile" Header="Save to file" Click="MenuSaveToFile_Click"></MenuItem>
+                <MenuItem Name="menuPreferences" Header="Preferences" Click="MenuPreferences_Click"></MenuItem>
+                <MenuItem Name="menuExit" Header="Exit" Click="MenuExit_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Edit" FontSize="18" HorizontalAlignment="Center" AllowDrop="True">
+                <MenuItem Name="menuSearch"  Header="Search Person" Click="MenuSearch_Click"></MenuItem>
+            </MenuItem>
+        </Menu>
+        
+        <Grid Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid><!--Buttons LOAD & SAVE-->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Button Name="btnLoadData" Grid.Column="0" Content="Load Data" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Width="150" 
+                        FontFamily="Century Gothic" FontSize="16" Click="BtnLoadData_Click"/>
+                <Button Name="btnSaveData" Grid.Column="1" Content="Save Data" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="150" 
+                        FontFamily="Century Gothic" FontSize="16" Click="SaveDataBtn_Click"/>
+            </Grid>
+
+            <DataGrid Name="DataGridXAML" CanUserResizeRows="False" IsReadOnly="False"
+                      Grid.Row="1" HorizontalAlignment="Center" Height="340" VerticalAlignment="Center" Width="800">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="Gold"></Setter>
+                        <Setter Property="BorderThickness" Value="1"></Setter>
+                        <Setter Property="BorderBrush" Value="Black"></Setter>
+                        <Setter Property="Padding" Value="10,5,10,5"></Setter>
+                        <Setter Property="TextElement.FontFamily" Value="Century Gothic"></Setter>
+                        <Setter Property="TextElement.FontSize" Value="14"></Setter>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Background" Value="CadetBlue"></Setter>
+                        <Setter Property="BorderThickness" Value="0"></Setter>
+                        <Setter Property="BorderBrush" Value="Black"></Setter>
+                        <Setter Property="TextElement.FontFamily" Value="Century Gothic"></Setter>
+                        <Setter Property="TextElement.FontSize" Value="14"></Setter>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="*"/>
+                    <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="*"/>
+                    <DataGridTextColumn Header="Phone Number" Binding="{Binding PhoneNumber}" Width="*"/>
+                    <DataGridTextColumn Header="Details" Binding="{Binding Details}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Window>

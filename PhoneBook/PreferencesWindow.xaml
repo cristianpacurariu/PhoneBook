@@ -1,0 +1,32 @@
+﻿<Window x:Class="PhoneBook.PreferencesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PhoneBook"
+        mc:Ignorable="d"
+        Title="PreferencesWindow" Height="250" Width="400" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Name="labelChangeFont" Content="Change Font" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Century Gothic" FontSize="16"/>
+            <Label Grid.Row="1" Name="labelChangeColor" Content="Change Color" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Century Gothic" FontSize="16"/>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <ComboBox Grid.Row="0" Name="cbFonts" HorizontalAlignment="Center" VerticalAlignment="Center" Width="120"/>
+            <ComboBox Grid.Row="1" Name="cbColors" HorizontalAlignment="Center" VerticalAlignment="Center" Width="120"/>
+        </Grid>
+
+    </Grid>
+</Window>
