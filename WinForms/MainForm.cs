@@ -64,19 +64,16 @@ namespace WinForms
 
             dataGridView.EnableHeadersVisualStyles = false;
 
-            //setting the cells font in the dataGridView
-            using (Font font = new Font(dataGridView.DefaultCellStyle.Font.FontFamily, 12, FontStyle.Regular))
+            for (int i = 0; i < dataGridView.Columns.Count; i++)
             {
-                for (int i = 0; i < dataGridView.Columns.Count; i++)
-                {
-                    dataGridView.Columns[i].DefaultCellStyle.Font = font;
-                }
+                dataGridView.Columns[i].DefaultCellStyle.Font = new Font(dataGridView.DefaultCellStyle.Font.FontFamily, 12, FontStyle.Regular);
             }
         }
         private void BtnSaveData_Click(object sender, EventArgs e)
         {
-
+            //CType(dataGridView.DataSource, DataTable).GetChanges(DataRowState.Modified).Rows
         }
+
         private void BtnLoadData_Click(object sender, EventArgs e)
         {
             //dataGridView.Rows.Clear();
