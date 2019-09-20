@@ -16,36 +16,42 @@ namespace WinForms
     public partial class FormMain : Form
     {
         private readonly ISubscriberRepo<SubscriberDto, SubscriberFilterDto> _subscriberRepo = new SubscriberRepo();
+        private int rowIndex = 0;
+
         public FormMain()
         {
             InitializeComponent();
         }
-
         private void FormMain_Load(object sender, EventArgs e)
         {
             //adding columns to the dataGridView
             DataGridViewTextBoxColumn[] columns = new DataGridViewTextBoxColumn[]
                 {
-                    new DataGridViewTextBoxColumn{ DataPropertyName = "Id", HeaderText = "Id", Name = "Id"},
-                    new DataGridViewTextBoxColumn{ DataPropertyName = "FirstName", HeaderText = "First Name", Name = "First Name"},
-                    new DataGridViewTextBoxColumn{ DataPropertyName = "LastName", HeaderText = "Last Name", Name = "Last Name"},
-                    new DataGridViewTextBoxColumn{ DataPropertyName = "PhoneNumber", HeaderText = "Phone Number", Name = "Phone Number"},
-                    new DataGridViewTextBoxColumn{ DataPropertyName = "Details", HeaderText = "Details", Name = "Details"},
+                    new DataGridViewTextBoxColumn{ DataPropertyName = "Id", HeaderText = "Id", Name = "Id", ReadOnly = false},
+                    new DataGridViewTextBoxColumn{ DataPropertyName = "FirstName", HeaderText = "First Name", Name = "First Name", ReadOnly = false},
+                    new DataGridViewTextBoxColumn{ DataPropertyName = "LastName", HeaderText = "Last Name", Name = "Last Name", ReadOnly = false},
+                    new DataGridViewTextBoxColumn{ DataPropertyName = "PhoneNumber", HeaderText = "Phone Number", Name = "Phone Number", ReadOnly = false},
+                    new DataGridViewTextBoxColumn{ DataPropertyName = "Details", HeaderText = "Details", Name = "Details", ReadOnly = false},
                 };
             dataGridView.Columns.AddRange(columns);
 
             List<SubscriberDto> allSubscribers = _subscriberRepo.All();
-            //dataGridView.DataSource = allSubscribers;
-
-            for (int i = 0; i < allSubscribers.Count; i++)
+            BindingList<SubscriberDto> bindingList = new BindingList<SubscriberDto>();
+            foreach (SubscriberDto subscriber in allSubscribers)
             {
-                dataGridView.Rows.Add();
-                dataGridView["Id", i].Value = allSubscribers[i].Id;
-                dataGridView["First Name", i].Value = allSubscribers[i].FirstName;
-                dataGridView["Last Name", i].Value = allSubscribers[i].LastName;
-                dataGridView["Phone Number", i].Value = allSubscribers[i].PhoneNumber;
-                dataGridView["Details", i].Value = allSubscribers[i].Details;
+                bindingList.Add(subscriber);
             }
+            dataGridView.DataSource = bindingList;
+
+            //for (int i = 0; i < bindingList.Count; i++)
+            //{
+            //    dataGridView.Rows.Add();
+            //    dataGridView["Id", i].Value = bindingList[i].Id;
+            //    dataGridView["First Name", i].Value = bindingList[i].FirstName;
+            //    dataGridView["Last Name", i].Value = bindingList[i].LastName;
+            //    dataGridView["Phone Number", i].Value = bindingList[i].PhoneNumber;
+            //    dataGridView["Details", i].Value = bindingList[i].Details;
+            //}
 
             //some styling
             dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -66,33 +72,35 @@ namespace WinForms
                     dataGridView.Columns[i].DefaultCellStyle.Font = font;
                 }
             }
-
         }
-
         private void BtnSaveData_Click(object sender, EventArgs e)
         {
 
         }
-
         private void BtnLoadData_Click(object sender, EventArgs e)
         {
             //dataGridView.Rows.Clear();
+
             List<SubscriberDto> allSubscribers = _subscriberRepo.All();
+            BindingList<SubscriberDto> bindingList = new BindingList<SubscriberDto>();
+            foreach (SubscriberDto subscriber in allSubscribers)
+            {
+                bindingList.Add(subscriber);
+            }
+
             if (allSubscribers.Count == 0)
             {
                 MessageBox.Show("There are no subscribers in the database");
             }
             else
             {
-                dataGridView.DataSource = allSubscribers;
+                dataGridView.DataSource = bindingList;
             }
         }
-
         private void SaveToToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
-
         private void BackgroundColorsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             colorDialog.ShowDialog();
@@ -108,7 +116,6 @@ namespace WinForms
 
             dataGridView.RowsDefaultCellStyle.BackColor = colorDialog.Color;
         }
-
         private void ChangeFontsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             fontDialog.ShowDialog();
@@ -132,17 +139,64 @@ namespace WinForms
                 }
             }
         }
-
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
             this.Dispose();
         }
-
         private void SearchPersonToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SearchForm searchForm = new SearchForm();
             searchForm.Show();
+        }
+        private void DataGridView_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
+            {
+                //select entire row
+                this.dataGridView.Rows[e.RowIndex].Selected = true;
+
+                //is used when clicked on Delete Row
+                this.rowIndex = e.RowIndex;
+
+                //to prevent multiple rows being selected
+                this.dataGridView.CurrentCell = this.dataGridView.Rows[e.RowIndex].Cells[1];
+
+                //show the context menu
+                this.contextMenu.Show(this.dataGridView, e.Location);
+
+                //show the context menu at the cell where the right click was performed
+                contextMenu.Show(Cursor.Position);
+            }
+        }
+
+        private void AddRowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<SubscriberDto> allSubscribers = _subscriberRepo.All();
+            BindingList<SubscriberDto> bindingList = new BindingList<SubscriberDto>();
+            foreach (SubscriberDto subscriber in allSubscribers)
+            {
+                bindingList.Add(subscriber);
+            }
+
+            bindingList.Add(new SubscriberDto { });
+            dataGridView.DataSource = bindingList;
+        }
+
+        private void DeleteRowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!this.dataGridView.Rows[this.rowIndex].IsNewRow && MessageBox.Show(
+                $"Do you want to delete the row with Id = {dataGridView.Rows[this.rowIndex].Cells["Id"].Value} ?", "Delete", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                int idToDelete = Convert.ToInt32(dataGridView.Rows[this.rowIndex].Cells["Id"].Value);
+
+                this.dataGridView.Rows.RemoveAt(this.rowIndex);
+
+                if (_subscriberRepo.Delete(idToDelete))
+                {
+                    MessageBox.Show("Data succesfully deleted from the database");
+                }
+            }
         }
     }
 }
