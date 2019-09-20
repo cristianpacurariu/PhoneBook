@@ -17,6 +17,7 @@ namespace WinForms
     {
         private readonly ISubscriberRepo<SubscriberDto, SubscriberFilterDto> _subscriberRepo = new SubscriberRepo();
         private int rowIndex = 0;
+        private List<int> toUpdateList = new List<int>();
 
         public FormMain()
         {
@@ -27,7 +28,7 @@ namespace WinForms
             //adding columns to the dataGridView
             DataGridViewTextBoxColumn[] columns = new DataGridViewTextBoxColumn[]
                 {
-                    new DataGridViewTextBoxColumn{ DataPropertyName = "Id", HeaderText = "Id", Name = "Id", ReadOnly = false},
+                    new DataGridViewTextBoxColumn{ DataPropertyName = "Id", HeaderText = "Id", Name = "Id", ReadOnly = true},
                     new DataGridViewTextBoxColumn{ DataPropertyName = "FirstName", HeaderText = "First Name", Name = "First Name", ReadOnly = false},
                     new DataGridViewTextBoxColumn{ DataPropertyName = "LastName", HeaderText = "Last Name", Name = "Last Name", ReadOnly = false},
                     new DataGridViewTextBoxColumn{ DataPropertyName = "PhoneNumber", HeaderText = "Phone Number", Name = "Phone Number", ReadOnly = false},
@@ -71,7 +72,55 @@ namespace WinForms
         }
         private void BtnSaveData_Click(object sender, EventArgs e)
         {
-            //CType(dataGridView.DataSource, DataTable).GetChanges(DataRowState.Modified).Rows
+            //Update changes in the database
+            foreach (int id in toUpdateList)
+            {
+                //Find the row by id, where the changes took place
+                int rowIndex = -1;
+                foreach (DataGridViewRow row in dataGridView.Rows)
+                {
+                    if ((int)row.Cells["Id"].Value == id)
+                    {
+                        rowIndex = row.Index;
+                        break;
+                    }
+                }
+
+                SubscriberDto subToUpdate = _subscriberRepo.Get(id);
+                subToUpdate.Id = (int)dataGridView.Rows[rowIndex].Cells["Id"].Value;
+                subToUpdate.FirstName = dataGridView.Rows[rowIndex].Cells["First Name"].Value.ToString();
+                subToUpdate.LastName = dataGridView.Rows[rowIndex].Cells["Last Name"].Value.ToString();
+                subToUpdate.PhoneNumber = dataGridView.Rows[rowIndex].Cells["Phone Number"].Value.ToString();
+                subToUpdate.Details = dataGridView.Rows[rowIndex].Cells["Details"].Value.ToString();
+
+                _subscriberRepo.Update(subToUpdate);
+            }
+
+            //Add new subscribers to the database
+            foreach (DataGridViewRow row in dataGridView.Rows)
+            {
+                if (!row.IsNewRow && (int)row.Cells["Id"].Value == 0)
+                {
+                    SubscriberDto toAdd = new SubscriberDto
+                    {
+                        FirstName = dataGridView.Rows[row.Index].Cells["First Name"].Value.ToString(),
+                        LastName = dataGridView.Rows[row.Index].Cells["Last Name"].Value.ToString(),
+                        PhoneNumber = dataGridView.Rows[row.Index].Cells["Phone Number"].Value.ToString(),
+                        Details = dataGridView.Rows[row.Index].Cells["Details"].Value.ToString(),
+                    };
+
+                    _subscriberRepo.Add(toAdd);
+                }
+            }
+
+            //Refresh datasource
+            List<SubscriberDto> allSubscribers = _subscriberRepo.All();
+            BindingList<SubscriberDto> bindingList = new BindingList<SubscriberDto>();
+            foreach (SubscriberDto subscriber in allSubscribers)
+            {
+                bindingList.Add(subscriber);
+            }
+            dataGridView.DataSource = bindingList;
         }
 
         private void BtnLoadData_Click(object sender, EventArgs e)
@@ -167,8 +216,10 @@ namespace WinForms
             }
         }
 
+        //unneeded.
         private void AddRowToolStripMenuItem_Click(object sender, EventArgs e)
         {
+
             List<SubscriberDto> allSubscribers = _subscriberRepo.All();
             BindingList<SubscriberDto> bindingList = new BindingList<SubscriberDto>();
             foreach (SubscriberDto subscriber in allSubscribers)
@@ -193,6 +244,15 @@ namespace WinForms
                 {
                     MessageBox.Show("Data succesfully deleted from the database");
                 }
+            }
+        }
+
+        private void DataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            int changedRowId = (int)dataGridView.Rows[e.RowIndex].Cells["Id"].Value;
+            if (!toUpdateList.Contains(changedRowId) && changedRowId != 0)
+            {
+                toUpdateList.Add(changedRowId);
             }
         }
     }

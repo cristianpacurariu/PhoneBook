@@ -105,6 +105,7 @@ namespace PhoneBook.Repository
 
                 SubscriberDto toReturn = new SubscriberDto
                 {
+                    Id = fromDb.Id,
                     FirstName = fromDb.FirstName,
                     LastName = fromDb.LastName,
                     PhoneNumber = fromDb.PhoneNumber,
